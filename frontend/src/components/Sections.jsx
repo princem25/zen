@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const Features = () => (
   <section className="py-20 md:py-36 bg-warm-white">
@@ -30,8 +32,19 @@ const productsData = [
 ];
 
 export const Products = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [quickView, setQuickView] = useState(null);
   const [qty, setQty] = useState(1);
+
+  const handleAddToCart = (product) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    // Add to cart logic would go here
+    alert(`Added ${product.name} to cart!`);
+  };
 
   return (
     <section id="products" className="py-20 md:py-36 bg-cream relative">
@@ -60,7 +73,10 @@ export const Products = () => {
                 <p className="text-[0.8rem] md:text-[0.85rem] text-mid mb-4 line-clamp-2 leading-[1.7]">{p.desc}</p>
                 <div className="mt-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
                   <span className="font-display text-[1.2rem] md:text-[1.3rem] font-semibold">{p.price}</span>
-                  <button className="w-full md:w-auto text-[0.78rem] font-semibold tracking-[0.06em] text-white bg-gradient-to-br from-blush-deep to-[#c9607a] px-4 md:px-5 py-2.5 rounded-full hover:scale-105 hover:shadow-[0_6px_20px_rgba(232,160,176,0.5)] transition-all text-center">
+                  <button 
+                    onClick={() => handleAddToCart(p)}
+                    className="w-full md:w-auto text-[0.78rem] font-semibold tracking-[0.06em] text-white bg-gradient-to-br from-blush-deep to-[#c9607a] px-4 md:px-5 py-2.5 rounded-full hover:scale-105 hover:shadow-[0_6px_20px_rgba(232,160,176,0.5)] transition-all text-center"
+                  >
                     Add to Cart
                   </button>
                 </div>
@@ -96,7 +112,10 @@ export const Products = () => {
                     <span className="font-semibold w-8 text-center">{qty}</span>
                     <button onClick={() => setQty(q => q + 1)} className="text-xl text-mid hover:text-charcoal w-6 flex justify-center">+</button>
                   </div>
-                  <button className="flex-1 bg-gradient-to-br from-blush-deep to-[#c9607a] text-white px-6 py-3 rounded-full text-sm font-semibold tracking-wide hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <button 
+                    onClick={() => handleAddToCart(quickView)}
+                    className="flex-1 bg-gradient-to-br from-blush-deep to-[#c9607a] text-white px-6 py-3 rounded-full text-sm font-semibold tracking-wide hover:shadow-xl hover:scale-[1.02] transition-all"
+                  >
                     Add to Cart ✦
                   </button>
                 </div>
