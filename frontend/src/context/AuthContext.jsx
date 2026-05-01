@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }) => {
             await axios.post('/login', { email, password });
             await checkAuth();
             
-            // Redirect to intended page or dashboard
-            const from = location.state?.from?.pathname || '/dashboard';
+            // Redirect to intended page or home
+            const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
         } catch (error) {
             if (error.response && error.response.status === 422) {
