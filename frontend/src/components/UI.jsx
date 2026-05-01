@@ -340,7 +340,7 @@ export const Hero = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="relative z-10 w-[260px] h-[340px] md:w-[340px] md:h-[420px] rounded-[50%_50%_50%_50%/55%_55%_45%_45%] overflow-hidden shadow-2xl floating"
           >
-            <img src={getCloudinaryUrl('/hero_skincare_model_1777524128543.png')} alt="Skincare Model" className="w-full h-full object-cover object-top" />
+            <img src={getCloudinaryUrl('v1777614636/hero_skincare_model_1777524128543_kw2lms.jpg')} alt="Skincare Model" className="w-full h-full object-cover object-top" />
           </motion.div>
 
           {/* Floating Badges */}

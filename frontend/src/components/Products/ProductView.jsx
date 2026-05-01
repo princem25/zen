@@ -6,10 +6,10 @@ import { useAuth } from '../../context/AuthContext';
 import { getCloudinaryUrl } from '../../lib/cloudinary';
 
 const productsData = [
-  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('/product_glow_serum_1777524145107.png'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
-  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('/product_veil_moisturizer_1777524161649.png'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
-  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('/product_clear_toner_1777524178937.png'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
-  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('/product_night_repair_1777524200469.png'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
+  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('v1777614636/product_glow_serum_1777524145107_icb4ur.jpg'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
+  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
+  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('v1777614637/product_clear_toner_1777524178937_kgqmao.jpg'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
+  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('v1777614636/product_night_repair_1777524200469_ehcvkx.jpg'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
 ];
 
 const ProductView = () => {
