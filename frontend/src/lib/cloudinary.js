@@ -14,5 +14,5 @@ export const getCloudinaryUrl = (path) => {
   
   // Construct the Cloudinary URL
   // We assume the images are in the root folder of Cloudinary
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v1714545128/${cleanPath}`;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${cleanPath}`;
 };
