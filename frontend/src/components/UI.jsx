@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { FadeIn } from './Animations';
+import { getCloudinaryUrl } from '../lib/cloudinary';
 
 export const CustomCursor = () => {
   const cursorX = useMotionValue(-100);
@@ -338,7 +340,7 @@ export const Hero = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="relative z-10 w-[260px] h-[340px] md:w-[340px] md:h-[420px] rounded-[50%_50%_50%_50%/55%_55%_45%_45%] overflow-hidden shadow-2xl floating"
           >
-            <img src="/hero_skincare_model_1777524128543.png" alt="Skincare Model" className="w-full h-full object-cover object-top" />
+            <img src={getCloudinaryUrl('/hero_skincare_model_1777524128543.png')} alt="Skincare Model" className="w-full h-full object-cover object-top" />
           </motion.div>
 
           {/* Floating Badges */}

@@ -12,6 +12,7 @@ import Profile from './components/Dashboard/Profile';
 
 import { CustomCursor, Preloader, Navbar, Hero, Footer } from './components/UI';
 import ProductsPage from './components/Products/ProductsPage';
+import ProductView from './components/Products/ProductView';
 import AboutPage from './components/About/AboutPage';
 import ReviewsPage from './components/Reviews/ReviewsPage';
 import SkinAura from './components/Aura/SkinAura';
@@ -106,6 +107,7 @@ function App() {
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
           <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
           <Route path="/products" element={<PageTransition><ProductsPage /></PageTransition>} />
+          <Route path="/product/:id" element={<PageTransition><ProductView /></PageTransition>} />
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
           <Route path="/reviews" element={<PageTransition><ReviewsPage /></PageTransition>} />
           <Route path="/aura-analysis" element={<PageTransition><SkinAura /></PageTransition>} />

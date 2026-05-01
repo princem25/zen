@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn, StaggerContainer } from './Animations';
+import { getCloudinaryUrl } from '../lib/cloudinary';
 
 export const Features = () => (
   <section className="py-20 md:py-36 bg-warm-white overflow-hidden">
@@ -45,7 +46,7 @@ export const MemberBenefits = () => {
               <p className="text-sm text-mid mt-1">Join our community for 15% off your first order and personalized skin routines.</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => navigate('/login')}
             className="bg-charcoal text-white px-8 py-3 rounded-full text-sm font-medium hover:bg-blush-deep transition-all shadow-lg"
           >
@@ -83,10 +84,10 @@ export const MemberBenefits = () => {
 };
 
 const productsData = [
-  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: '/product_glow_serum_1777524145107.png', badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin.' },
-  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: '/product_veil_moisturizer_1777524161649.png', badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration.' },
-  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: '/product_clear_toner_1777524178937.png', badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin.' },
-  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: '/product_night_repair_1777524200469.png', badge: 'Limited', desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin.' }
+  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('/product_glow_serum_1777524145107.png'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin.' },
+  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('/product_veil_moisturizer_1777524161649.png'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration.' },
+  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('/product_clear_toner_1777524178937.png'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin.' },
+  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('/product_night_repair_1777524200469.png'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin.' }
 ];
 
 export const Products = () => {
@@ -100,7 +101,6 @@ export const Products = () => {
       navigate('/login');
       return;
     }
-    // Add to cart logic would go here
     alert(`Added ${product.name} to cart!`);
   };
 
@@ -113,34 +113,66 @@ export const Products = () => {
           <p className="text-mid text-base md:text-lg">Formulated to transform your skin, morning to night.</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+        <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 px-2 md:px-0">
           {productsData.map((p, i) => (
             <FadeIn key={p.id} delay={i * 0.1}>
-              <div className="bg-warm-white rounded-2xl md:rounded-3xl overflow-hidden border-[1.5px] border-charcoal/5 hover:-translate-y-1.5 hover:shadow-[0_12px_48px_rgba(42,42,42,0.10)] transition-all group flex flex-col h-full">
-                <div className="relative aspect-square md:aspect-auto md:h-[260px] overflow-hidden">
-                  <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-charcoal/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setQuickView(p); setQty(1); }} className="bg-white/95 text-charcoal px-5 py-2.5 rounded-full text-[0.8rem] font-semibold tracking-wider translate-y-4 group-hover:translate-y-0 hover:bg-blush-deep hover:text-white transition-all">
+              <div className="bg-warm-white rounded-[2rem] overflow-hidden border border-charcoal/5 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 group flex flex-col h-full relative">
+                
+                {/* Image Section */}
+                <div 
+                  className="relative aspect-square overflow-hidden cursor-pointer"
+                  onClick={() => { setQuickView(p); setQty(1); }}
+                >
+                  <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 ease-out" />
+                  
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3 bg-charcoal text-white px-3 py-1 rounded-full z-10">
+                    <span className="text-[0.65rem] font-bold tracking-wider uppercase">{p.cat}</span>
+                  </div>
+
+                  {/* Desktop Quick View Overlay */}
+                  <div className="absolute inset-0 bg-charcoal/30 opacity-0 group-hover:opacity-100 transition-all duration-500 hidden md:flex items-center justify-center">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setQuickView(p); setQty(1); }} 
+                      className="bg-white/95 backdrop-blur-sm text-charcoal px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:bg-blush-deep hover:text-white"
+                    >
                       Quick View
                     </button>
                   </div>
-                  {p.badge && <span className={`absolute top-3 md:top-4 left-3 md:left-4 text-[0.68rem] font-semibold tracking-widest uppercase px-3 py-1 rounded-full text-white ${p.badge === 'New' ? 'bg-gradient-to-br from-sage-deep to-[#5a8c54]' : 'bg-charcoal'}`}>{p.badge}</span>}
-                </div>
-                <div className="p-4 md:p-6 flex flex-col flex-1">
-                  <div className="flex justify-between items-start mb-1.5">
-                    <span className="text-[0.65rem] md:text-[0.7rem] font-semibold tracking-[0.15em] uppercase text-sage-deep block">{p.cat}</span>
-                    {user && <span className="text-[0.6rem] font-bold text-blush-deep bg-blush/20 px-2 py-0.5 rounded-full">Member Price</span>}
-                  </div>
-                  <h3 className="font-display text-[1.1rem] md:text-[1.25rem] font-medium mb-1.5">{p.name}</h3>
-                  <p className="text-[0.8rem] md:text-[0.85rem] text-mid mb-4 line-clamp-2 leading-[1.7]">{p.desc}</p>
-                  <div className="mt-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
-                    <div className="flex flex-col">
-                      <span className="font-display text-[1.2rem] md:text-[1.3rem] font-semibold">{p.price}</span>
-                      {user && <span className="text-[0.7rem] text-mid line-through opacity-60 italic">Regular Price</span>}
+
+                  {/* Mobile Quick View Indicator */}
+                  <div className="absolute bottom-3 right-3 md:hidden z-10">
+                    <div className="bg-white/90 backdrop-blur-sm w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-charcoal text-lg">👁</span>
                     </div>
+                  </div>
+
+                  {p.badge && (
+                    <span className={`absolute top-3 right-3 text-[0.65rem] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10 ${p.badge === 'New' ? 'bg-gradient-to-r from-sage-deep to-[#5a8c54] text-white' : 'bg-blush-deep text-white'}`}>
+                      {p.badge}
+                    </span>
+                  )}
+                </div>
+
+                {/* Content Section */}
+                <div className="p-5 md:p-6 flex flex-col flex-1">
+                  <span className="text-[0.7rem] font-bold tracking-widest uppercase text-sage-deep mb-2 block">{p.cat}</span>
+                  <button 
+                    onClick={() => navigate(`/product/${p.id}`)}
+                    className="text-left group/title"
+                  >
+                    <h3 className="font-display text-[1.1rem] md:text-[1.25rem] font-medium text-charcoal leading-tight mb-2 group-hover/title:text-blush-deep transition-colors">{p.name}</h3>
+                  </button>
+                  <p className="text-[0.8rem] md:text-[0.85rem] text-mid mb-5 leading-relaxed line-clamp-2">
+                    {p.desc}
+                  </p>
+                  
+                  <div className="mt-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <span className="font-display text-[1.2rem] md:text-[1.4rem] font-bold text-charcoal">{p.price}</span>
+                    
                     <button 
                       onClick={() => handleAddToCart(p)}
-                      className="w-fit px-6 py-2.5 text-[0.7rem] md:text-[0.78rem] font-semibold tracking-[0.06em] text-white bg-gradient-to-br from-blush-deep to-[#c9607a] rounded-full hover:scale-105 hover:shadow-[0_6px_20px_rgba(232,160,176,0.5)] transition-all text-center whitespace-nowrap"
+                      className="btn-primary w-full md:w-auto text-[0.7rem] font-bold uppercase tracking-widest px-5 py-3 md:py-2.5 rounded-full transition-all"
                     >
                       Add to Cart
                     </button>
@@ -150,11 +182,11 @@ export const Products = () => {
             </FadeIn>
           ))}
         </div>
-        
+
         <div className="mt-20 text-center">
-          <button 
+          <button
             onClick={() => navigate('/products')}
-            className="border-[1.5px] border-charcoal/20 text-charcoal px-12 py-4 rounded-full text-sm font-semibold tracking-widest uppercase hover:bg-charcoal hover:text-white transition-all shadow-xl"
+            className="btn btn-ghost px-12 py-4 shadow-xl"
           >
             Shop Full Collection
           </button>
@@ -162,43 +194,69 @@ export const Products = () => {
       </div>
 
       {/* Quick View Modal */}
-      <div className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-all duration-400 ${quickView ? 'opacity-100 visible pointer-events-auto' : 'opacity-0 invisible pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" onClick={() => setQuickView(null)}></div>
+      <AnimatePresence>
         {quickView && (
-          <div className="relative bg-warm-white rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-y-auto shadow-2xl transition-transform duration-400 scale-100">
-            <button onClick={() => setQuickView(null)} className="absolute top-2 right-4 text-4xl text-charcoal/40 hover:text-charcoal z-10 transition-colors">&times;</button>
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="h-[250px] md:h-full min-h-[300px] relative">
-                <img src={quickView.img} className="absolute inset-0 w-full h-full object-cover" />
-              </div>
-              <div className="p-6 md:p-12 flex flex-col">
-                <span className="text-[0.7rem] font-semibold tracking-widest uppercase text-sage-deep mb-3 md:mb-4 block">{quickView.cat}</span>
-                <h2 className="font-display text-3xl md:text-4xl font-normal text-charcoal mb-2">{quickView.name}</h2>
-                <p className="font-display text-2xl font-semibold text-blush-deep mb-4 md:mb-6">{quickView.price}</p>
-                <div className="w-10 h-[2px] bg-sage-deep/30 mb-4 md:mb-6"></div>
-                <p className="text-sm md:text-base text-mid leading-relaxed mb-6 md:mb-8">{quickView.desc}</p>
-                <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                  <div className="flex items-center gap-2 text-xs font-medium text-charcoal bg-charcoal/5 px-3 py-1.5 rounded-full"><span>🌿</span> Natural</div>
-                  <div className="flex items-center gap-2 text-xs font-medium text-charcoal bg-charcoal/5 px-3 py-1.5 rounded-full"><span>🐰</span> Cruelty-Free</div>
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-charcoal/60 backdrop-blur-md" 
+              onClick={() => setQuickView(null)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.95 }}
+              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              className="relative bg-warm-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl z-10"
+            >
+              <button 
+                onClick={() => setQuickView(null)} 
+                className="absolute top-4 right-6 text-4xl text-light hover:text-charcoal z-20 transition-colors"
+              >
+                &times;
+              </button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 h-full overflow-y-auto">
+                <div className="h-[300px] md:h-full relative">
+                  <img src={quickView.img} className="absolute inset-0 w-full h-full object-cover" alt={quickView.name} />
                 </div>
-                <div className="flex flex-col md:flex-row gap-3 md:gap-4 mt-auto">
-                  <div className="flex items-center justify-center border border-charcoal/15 rounded-full px-4 py-2">
-                    <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-xl text-mid hover:text-charcoal w-6 flex justify-center">-</button>
-                    <span className="font-semibold w-8 text-center">{qty}</span>
-                    <button onClick={() => setQty(q => q + 1)} className="text-xl text-mid hover:text-charcoal w-6 flex justify-center">+</button>
+                
+                <div className="p-8 md:p-12 flex flex-col">
+                  <span className="text-[0.75rem] font-bold tracking-[0.15em] uppercase text-sage-deep mb-4 block">{quickView.cat}</span>
+                  <h2 className="font-display text-3xl md:text-4xl font-normal text-charcoal mb-2">{quickView.name}</h2>
+                  <p className="font-display text-2xl font-semibold text-blush-deep mb-6">{quickView.price}</p>
+                  
+                  <div className="w-10 h-[2px] bg-sage-deep/40 mb-6"></div>
+                  
+                  <p className="text-sm md:text-base text-mid leading-[1.8] mb-8">{quickView.desc}</p>
+                  
+                  <div className="flex flex-wrap gap-3 mb-10">
+                    <div className="flex items-center gap-2 text-[0.8rem] font-medium text-charcoal bg-charcoal/5 px-4 py-1.5 rounded-full"><span>🌿</span> Natural</div>
+                    <div className="flex items-center gap-2 text-[0.8rem] font-medium text-charcoal bg-charcoal/5 px-4 py-1.5 rounded-full"><span>🐰</span> Cruelty-Free</div>
+                    <div className="flex items-center gap-2 text-[0.8rem] font-medium text-charcoal bg-charcoal/5 px-4 py-1.5 rounded-full"><span>✨</span> Dermatologist Tested</div>
                   </div>
-                  <button 
-                    onClick={() => handleAddToCart(quickView)}
-                    className="flex-1 bg-gradient-to-br from-blush-deep to-[#c9607a] text-white px-6 py-3 rounded-full text-sm font-semibold tracking-wide hover:shadow-xl hover:scale-[1.02] transition-all"
-                  >
-                    Add to Cart ✦
-                  </button>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+                    <div className="flex items-center justify-between border border-charcoal/15 rounded-full px-5 py-2.5 sm:w-32">
+                      <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-xl text-mid hover:text-charcoal w-6 flex justify-center transition-colors">-</button>
+                      <span className="font-bold w-8 text-center text-charcoal">{qty}</span>
+                      <button onClick={() => setQty(q => q + 1)} className="text-xl text-mid hover:text-charcoal w-6 flex justify-center transition-colors">+</button>
+                    </div>
+                    <button
+                      onClick={() => handleAddToCart(quickView)}
+                      className="btn btn-primary flex-1 uppercase tracking-widest"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
-      </div>
+      </AnimatePresence>
     </section>
   );
 };
@@ -225,7 +283,7 @@ export const Marquee = () => (
 export const Reviews = () => {
   const navigate = useNavigate();
   const [index, setIndex] = React.useState(0);
-  
+
   const reviews = [
     { name: 'Sarah J.', text: "The Petal Glow Serum completely transformed my skin texture. My pores are visibly smaller and I have this constant, natural radiance. I've never received so many compliments.", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80' },
     { name: 'Michael K.', text: "Finally found a moisturizer that doesn't make me look like a grease ball. The Dew Veil is lightweight but incredibly hydrating. A staple in my routine now.", avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
@@ -242,11 +300,11 @@ export const Reviews = () => {
           <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-sage-deep bg-sage-deep/15 px-4 py-1.5 rounded-full mb-5">Testimonials</span>
           <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-12 md:mb-20">Real <em className="italic text-blush-deep">Stories</em></h2>
         </FadeIn>
-        
+
         <div className="relative max-w-4xl mx-auto">
           {/* Navigation Buttons */}
           <div className="absolute top-1/2 -left-4 md:-left-12 -translate-y-1/2 z-10">
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1, x: -2 }}
               whileTap={{ scale: 0.9 }}
               onClick={prev}
@@ -256,7 +314,7 @@ export const Reviews = () => {
             </motion.button>
           </div>
           <div className="absolute top-1/2 -right-4 md:-right-12 -translate-y-1/2 z-10">
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1, x: 2 }}
               whileTap={{ scale: 0.9 }}
               onClick={next}
@@ -267,7 +325,7 @@ export const Reviews = () => {
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.div 
+            <motion.div
               key={index}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -287,7 +345,7 @@ export const Reviews = () => {
                     <span className="text-[0.8rem] text-light">Verified Buyer</span>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => navigate('/reviews')}
                   className="text-xs font-bold tracking-widest uppercase text-blush-deep hover:underline transition-all"
                 >
@@ -300,7 +358,7 @@ export const Reviews = () => {
           {/* Dots Indicator */}
           <div className="flex justify-center gap-2 mt-8">
             {reviews.map((_, i) => (
-              <button 
+              <button
                 key={i}
                 onClick={() => setIndex(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${index === i ? 'w-8 bg-blush-deep' : 'bg-charcoal/10'}`}
@@ -334,7 +392,7 @@ export const About = () => (
           <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🌍 Sustainably Sourced</div>
           <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🧪 Clinically Validated</div>
         </div>
-        <button 
+        <button
           onClick={() => navigate('/about')}
           className="bg-gradient-to-br from-blush-deep to-[#d4788a] text-white px-10 py-4 rounded-full text-sm font-medium tracking-wide shadow-lg hover:-translate-y-1 transition-all"
         >
