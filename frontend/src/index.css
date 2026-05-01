@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FAF7F2;
+  --color-blush: #F2C4CE;
+  --color-blush-deep: #E8A0B0;
+  --color-sage: #B5C9B0;
+  --color-sage-deep: #8BAF85;
+  --color-beige: #EDE0D4;
+  --color-warm-white: #FDFAF6;
+  --color-charcoal: #2A2A2A;
+  --color-mid: #5C5C5C;
+  --color-light: #9A9A9A;
+  --color-gold: #C9A96E;
+
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Jost", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-charcoal font-body overflow-x-hidden leading-relaxed cursor-none;
+  }
+}
+
+@layer utilities {
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+  .floating-slow {
+    animation: float 9s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+  }
+
+  .blob-shape {
+    border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+    animation: blobMorph 10s ease-in-out infinite;
+  }
+  @keyframes blobMorph {
+    0%, 100% { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; }
+    33% { border-radius: 40% 60% 45% 55% / 55% 45% 60% 40%; }
+    66% { border-radius: 55% 45% 40% 60% / 40% 60% 55% 45%; }
+  }
+
+  .glass-panel {
+    @apply bg-[rgba(250,247,242,0.88)] backdrop-blur-[20px] backdrop-saturate-[150%] shadow-[0_2px_32px_rgba(42,42,42,0.06)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-blush-deep to-gold;
+  }
+
+  /* Shared Button Styles from Zen-Master */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-sm font-medium tracking-wide transition-all duration-400 relative overflow-hidden;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-br from-blush-deep to-[#d4788a] text-white shadow-[0_8px_32px_rgba(232,160,176,0.4)] hover:shadow-[0_16px_48px_rgba(232,160,176,0.55)] hover:-translate-y-1 hover:scale-[1.02];
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-charcoal border-[1.5px] border-charcoal/20 hover:bg-charcoal hover:text-white hover:-translate-y-1 transition-all;
+  }
+
+  @keyframes preloaderPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  @keyframes preloaderFill {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
