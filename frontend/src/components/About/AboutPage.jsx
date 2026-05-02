@@ -4,7 +4,7 @@ import { FadeIn, StaggerContainer } from '../Animations';
 
 const AboutPage = () => {
   return (
-    <div className="bg-warm-white min-h-screen">
+    <div className="bg-warm-white min-h-screen overflow-x-hidden">
       
       <main className="pt-32">
         {/* Story Header */}
@@ -13,7 +13,7 @@ const AboutPage = () => {
             <div>
               <FadeIn direction="left">
                 <span className="text-xs font-semibold tracking-[0.2em] uppercase text-sage-deep mb-6 block">Our Genesis</span>
-                <h1 className="font-display text-5xl md:text-7xl font-light leading-tight text-charcoal mb-8">
+                <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-light leading-tight text-charcoal mb-8">
                   Skincare for the <em className="italic text-blush-deep">Modern Soul</em>
                 </h1>
                 <p className="text-lg text-mid leading-relaxed mb-8">
@@ -60,7 +60,7 @@ const AboutPage = () => {
               { title: 'Ritual', desc: 'Skincare is self-care. We craft sensorial textures and natural scents that turn your routine into a daily sanctuary.', icon: '✨' }
             ].map((pillar, i) => (
               <FadeIn key={i} delay={i * 0.2} distance={40}>
-                <div className="bg-white/50 backdrop-blur-sm p-10 rounded-[2.5rem] border border-white hover:shadow-xl transition-all text-center h-full group">
+                <div className="bg-white/50 backdrop-blur-sm p-8 md:p-10 rounded-[2.5rem] border border-white hover:shadow-xl transition-all text-center h-full group">
                   <span className="text-4xl mb-6 block group-hover:scale-110 transition-transform">{pillar.icon}</span>
                   <h3 className="font-display text-2xl font-medium mb-4">{pillar.title}</h3>
                   <p className="text-sm text-mid leading-relaxed">{pillar.desc}</p>
@@ -80,11 +80,11 @@ const AboutPage = () => {
               { year: '2024', title: 'Global Impact', desc: 'Transitioned to 100% biodegradable packaging and carbon-neutral distribution.' }
             ].map((event, i) => (
               <FadeIn key={i} direction={i % 2 === 0 ? 'left' : 'right'} distance={50}>
-                <div className={`flex flex-col md:flex-row items-start gap-8 relative ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                  <div className="w-10 h-10 bg-white border-2 border-blush-deep rounded-full flex items-center justify-center z-10 shrink-0">
+                <div className={`flex flex-row items-start gap-6 md:gap-8 relative ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                  <div className="w-10 h-10 bg-white border-2 border-blush-deep rounded-full flex items-center justify-center z-10 shrink-0 mt-2">
                     <div className="w-2 h-2 bg-blush-deep rounded-full"></div>
                   </div>
-                  <div className="flex-1 bg-white p-8 rounded-3xl shadow-sm border border-beige hover:shadow-md transition-shadow">
+                  <div className="flex-1 bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-beige hover:shadow-md transition-shadow">
                     <span className="text-blush-deep font-display text-2xl font-semibold mb-2 block">{event.year}</span>
                     <h4 className="text-xl font-medium mb-3">{event.title}</h4>
                     <p className="text-sm text-mid leading-relaxed">{event.desc}</p>

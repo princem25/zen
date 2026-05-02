@@ -236,6 +236,7 @@ export default function ProductsPage() {
                                     <motion.button 
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
+                                        onClick={() => window.open(`https://wa.me/9714203627?text=hii`, '_blank')}
                                         className="w-fit bg-white text-charcoal px-8 py-4 rounded-full text-sm font-semibold hover:bg-blush hover:text-white transition-all shadow-2xl whitespace-nowrap"
                                     >
                                         Shop the Set

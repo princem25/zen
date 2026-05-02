@@ -38,7 +38,7 @@ export const CustomCursor = () => {
   }, [cursorX, cursorY]);
 
   return (
-    <>
+    <div className="md:block hidden">
       <motion.div
         className="fixed top-0 left-0 w-2 h-2 bg-blush-deep rounded-full pointer-events-none z-[999999] -translate-x-1/2 -translate-y-1/2"
         style={{ x: cursorX, y: cursorY }}
@@ -47,7 +47,7 @@ export const CustomCursor = () => {
         className={`fixed top-0 left-0 rounded-full pointer-events-none z-[999998] -translate-x-1/2 -translate-y-1/2 transition-[width,height,background-color,border-color,opacity,border-width] duration-150 ${isHovered ? 'w-14 h-14 bg-blush/20' : 'w-10 h-10 border-[1.5px] border-blush-deep opacity-40'}`}
         style={{ x: cursorX, y: cursorY }}
       />
-    </>
+    </div>
   );
 };
 
@@ -115,7 +115,7 @@ export const Navbar = () => {
               <span className="bg-gradient-to-r from-charcoal via-[#5a5a5a] to-charcoal bg-clip-text text-transparent">
                 Zenphira
               </span>
-              <motion.span 
+              <motion.span
                 animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-1.5 h-1.5 bg-blush-deep rounded-full ml-2"
@@ -126,6 +126,7 @@ export const Navbar = () => {
           {/* Desktop Menu */}
           <ul className="hidden md:flex items-center gap-8">
             {[
+              user?.role === 'admin' && { name: 'Admin Panel', link: '/admin' },
               user && { name: 'My Orders', link: '/dashboard' },
               { name: 'Home', link: '/' },
               { name: 'Skin Aura', link: '/aura-analysis' },
@@ -159,7 +160,12 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                <Link to="/dashboard" className="text-sm font-medium text-charcoal hover:text-blush-deep transition-colors">{user.name}</Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="text-xs font-bold tracking-widest uppercase text-blush-deep bg-blush/10 px-6 py-2.5 rounded-full hover:bg-blush-deep hover:text-white transition-all border border-blush-deep/20">
+                    Admin Panel ⚙️
+                  </Link>
+                )}
+                <Link to="/profile" className="text-sm font-medium text-charcoal hover:text-blush-deep transition-colors">{user.name}</Link>
                 <button onClick={logout} className="text-xs font-semibold tracking-widest uppercase text-charcoal border border-charcoal/20 px-6 py-2.5 rounded-full hover:bg-charcoal hover:text-white transition-all">
                   Logout
                 </button>
@@ -217,6 +223,7 @@ export const Navbar = () => {
           <nav className="flex-1">
             <ul className="flex flex-col gap-5">
               {[
+                user?.role === 'admin' && { name: 'Admin Panel', link: '/admin' },
                 user && { name: 'My Orders', link: '/dashboard' },
                 { name: 'Home', link: '/' },
                 { name: 'Skin Aura', link: '/aura-analysis' },
@@ -250,7 +257,9 @@ export const Navbar = () => {
                     {user.name.charAt(0)}
                   </div>
                   <div>
-                    <span className="block text-sm font-semibold text-charcoal">{user.name}</span>
+                    <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-semibold text-charcoal hover:text-blush-deep transition-colors">
+                      {user.name}
+                    </Link>
                     <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xs text-mid hover:text-blush-deep">View Profile</Link>
                   </div>
                 </div>

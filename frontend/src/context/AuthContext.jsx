@@ -9,6 +9,8 @@ import {
     updateProfile,
     sendEmailVerification,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     confirmPasswordReset,
     verifyPasswordResetCode
 } from 'firebase/auth';
@@ -29,7 +31,6 @@ export const AuthProvider = ({ children }) => {
             const result = await signInWithPopup(auth, googleProvider);
             const firebaseUser = result.user;
             
-            // Check if user document exists in Firestore
             const userRef = doc(db, 'users', firebaseUser.uid);
             const userSnap = await getDoc(userRef);
 
@@ -46,20 +47,9 @@ export const AuthProvider = ({ children }) => {
             navigate(from, { replace: true });
         } catch (error) {
             console.error("Google login failed:", error);
-            if (error.code === 'auth/cancelled-popup-request') {
-                // Ignore silent cancellation
-                return;
-            }
-            if (error.code === 'auth/popup-closed-by-user') {
-                // Ignore when user closes the window
-                return;
-            }
-            
             if (error.code === 'auth/operation-not-allowed') {
-                alert("Google login is not enabled in Firebase Console. Please enable it in Authentication > Sign-in method.");
-            } else if (error.code === 'auth/popup-blocked') {
-                alert("Popup blocked! Please allow popups for this website in your browser settings.");
-            } else {
+                alert("Google login is not enabled in Firebase Console.");
+            } else if (error.code !== 'auth/popup-closed-by-user') {
                 alert("Login failed: " + error.message);
             }
         }
@@ -71,13 +61,21 @@ export const AuthProvider = ({ children }) => {
                 // Fetch additional user data from Firestore if needed
                 const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
                 const userData = userDoc.exists() ? userDoc.data() : {};
+                const sanitizedRole = (userData.role || 'user').trim();
                 
+                console.log("🔥 User Auth State Updated:", {
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    role: sanitizedRole
+                });
+
                 setUser({
                     uid: firebaseUser.uid,
                     email: firebaseUser.email,
                     name: firebaseUser.displayName || userData.name || 'Ritualist',
                     emailVerified: firebaseUser.emailVerified,
-                    ...userData
+                    ...userData,
+                    role: sanitizedRole
                 });
             } else {
                 setUser(null);
