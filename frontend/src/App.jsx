@@ -76,10 +76,6 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && user && !user.email_verified_at && location.pathname !== '/verify-email' && !location.pathname.startsWith('/verify-email/')) {
-      navigate('/verify-email');
-    }
-
     // Protect auth routes
     const authRoutes = ['/dashboard', '/profile'];
     if (!isLoading && !user && authRoutes.includes(location.pathname)) {
