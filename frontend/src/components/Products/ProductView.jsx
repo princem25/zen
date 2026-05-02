@@ -4,39 +4,82 @@ import { motion } from 'framer-motion';
 import { FadeIn } from '../Animations';
 import { useAuth } from '../../context/AuthContext';
 import { getCloudinaryUrl } from '../../lib/cloudinary';
+import { db } from '../../lib/firebase';
+import { doc, getDoc, collection, getDocs, limit, query, where } from 'firebase/firestore';
 
 const productsData = [
-  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('/product_glow_serum_1777524145107.png'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
-  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('/product_veil_moisturizer_1777524161649.png'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
-  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('/product_clear_toner_1777524178937.png'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
-  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('/product_night_repair_1777524200469.png'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
+  { id: '1', name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: 'v1777614636/product_glow_serum_1777524145107_icb4ur.jpg', badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
+  { id: '2', name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: 'v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg', badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
+  { id: '3', name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: 'v1777614637/product_clear_toner_1777524178937_kgqmao.jpg', badge: null, desc: 'Niacidamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
+  { id: '4', name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: 'v1777614636/product_night_repair_1777524200469_ehcvkx.jpg', badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
 ];
 
 const ProductView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [suggested, setSuggested] = useState([]);
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      setLoading(true);
+      try {
+        const docRef = doc(db, 'products', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = { 
+            id: docSnap.id, 
+            ...docSnap.data(),
+            img: getCloudinaryUrl(docSnap.data().img)
+          };
+          setProduct(data);
+
+          // Fetch suggested products
+          const q = query(
+            collection(db, 'products'),
+            where('category', '==', data.category),
+            limit(5)
+          );
+          const suggestSnap = await getDocs(q);
+          setSuggested(
+            suggestSnap.docs
+              .map(doc => ({ id: doc.id, ...doc.data() }))
+              .filter(p => p.id !== id)
+          );
+        } else {
+          navigate('/products');
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductData();
+  }, [id, navigate]);
+
+  if (loading) return (
+    <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-blush-deep border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+
+  if (!product) return null;
 
   const handleAddToCart = () => {
     if (!user) {
       navigate('/login');
       return;
     }
+    // Open WhatsApp with pre-filled message
+    window.open(`https://wa.me/9714203627?text=hii`, '_blank');
     alert(`Added ${qty} x ${product.name} to cart!`);
   };
-
-  useEffect(() => {
-    const found = productsData.find(p => p.id === parseInt(id));
-    if (found) {
-      setProduct(found);
-    } else {
-      navigate('/products');
-    }
-  }, [id, navigate]);
-
-  if (!product) return null;
 
   return (
     <div className="bg-cream min-h-screen pt-32 pb-20">
@@ -65,16 +108,23 @@ const ProductView = () => {
           <FadeIn direction="left">
             <div className="flex flex-col h-full py-4">
               <span className="text-xs font-bold tracking-[0.2em] uppercase text-sage-deep bg-sage-deep/15 px-4 py-1.5 rounded-full mb-6 w-fit">
-                {product.cat}
+                {product.category || product.cat}
               </span>
               <h1 className="font-display text-4xl md:text-6xl text-charcoal mb-4">{product.name}</h1>
-              <p className="font-display text-3xl font-semibold text-blush-deep mb-8">{product.price}</p>
+              <p className="font-display text-3xl font-semibold text-blush-deep mb-8">₹{Number(product.price).toLocaleString('en-IN')}</p>
               
               <div className="w-16 h-[3px] bg-sage-deep/30 mb-10"></div>
               
-              <div className="prose prose-neutral mb-12">
-                <p className="text-mid text-lg leading-relaxed">{product.desc}</p>
+              <div className="prose prose-neutral mb-8">
+                <p className="text-mid text-lg leading-relaxed">{product.description || product.desc}</p>
               </div>
+
+              {product.ingredients && (
+                <div className="mb-8">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-mid mb-3">Key Ingredients</h4>
+                  <p className="text-sm text-charcoal leading-relaxed">{product.ingredients}</p>
+                </div>
+              )}
 
               {/* Perks */}
               <div className="flex flex-wrap gap-3 mb-12">
@@ -115,22 +165,24 @@ const ProductView = () => {
       </div>
 
       {/* Suggested Section */}
-      <section className="mt-32 border-t border-charcoal/5 pt-24">
-        <div className="max-w-7xl mx-auto px-4 md:px-10">
-          <h2 className="font-display text-3xl text-charcoal mb-12">Complete the <em className="italic text-blush-deep">Ritual</em></h2>
-          <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsData.filter(p => p.id !== product.id).slice(0, 4).map(p => (
-              <div key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="cursor-pointer group">
-                <div className="aspect-[4/5] rounded-3xl overflow-hidden mb-4 relative">
-                  <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700" />
+      {suggested.length > 0 && (
+        <section className="mt-32 border-t border-charcoal/5 pt-24">
+          <div className="max-w-7xl mx-auto px-4 md:px-10">
+            <h2 className="font-display text-3xl text-charcoal mb-12">Complete the <em className="italic text-blush-deep">Ritual</em></h2>
+            <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-6">
+              {suggested.map(p => (
+                <div key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="cursor-pointer group">
+                  <div className="aspect-[4/5] rounded-3xl overflow-hidden mb-4 relative">
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700" />
+                  </div>
+                  <h4 className="font-display text-lg text-charcoal group-hover:text-blush-deep transition-colors">{p.name}</h4>
+                  <p className="text-xs text-mid">₹{Number(p.price).toLocaleString('en-IN')}</p>
                 </div>
-                <h4 className="font-display text-lg text-charcoal group-hover:text-blush-deep transition-colors">{p.name}</h4>
-                <p className="text-xs text-mid">{p.price}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

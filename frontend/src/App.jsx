@@ -32,8 +32,8 @@ const Home = () => {
         <Marquee />
         <Features />
         <MemberBenefits />
-        <Products />
-        
+        <Products limitCount={4} />
+
         {/* Personalized Skin Profile Prompt */}
         <section className="py-20 bg-warm-white">
           <div className="max-w-7xl mx-auto px-4 md:px-10">
@@ -45,11 +45,11 @@ const Home = () => {
                   {user ? `Your Skin Profile is Ready, ${user.name.split(' ')[0]}` : "Identify Your Unique Skin Type"}
                 </h2>
                 <p className="text-mid text-lg mb-10 max-w-xl">
-                  {user 
+                  {user
                     ? "We've analyzed your preferences and curated a selection of products just for you. Keep your profile updated for better recommendations."
                     : "Join Zenphira to take our expert skin quiz and get a personalized routine tailored specifically for your concerns."}
                 </p>
-                <button 
+                <button
                   onClick={() => navigate(user ? '/profile' : '/login')}
                   className="bg-charcoal text-white px-10 py-4 rounded-full text-sm font-medium hover:bg-blush-deep transition-all shadow-xl"
                 >
@@ -70,16 +70,21 @@ const Home = () => {
   );
 };
 
+import AdminRoute from './components/Admin/AdminRoute';
+import AdminLayout from './components/Admin/AdminLayout';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import ProductManager from './components/Admin/ProductManager';
+import OrderManager from './components/Admin/OrderManager';
+import UserManager from './components/Admin/UserManager';
+import CategoryManager from './components/Admin/CategoryManager';
+import ReviewManager from './components/Admin/ReviewManager';
+
 function App() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && user && !user.email_verified_at && location.pathname !== '/verify-email' && !location.pathname.startsWith('/verify-email/')) {
-      navigate('/verify-email');
-    }
-
     // Protect auth routes
     const authRoutes = ['/dashboard', '/profile'];
     if (!isLoading && !user && authRoutes.includes(location.pathname)) {
@@ -87,7 +92,7 @@ function App() {
     }
   }, [user, isLoading, location.pathname, navigate]);
 
-  const showNavAndFooter = !['/login', '/register', '/forgot-password', '/password-reset', '/verify-email'].some(path => location.pathname.startsWith(path));
+  const showNavAndFooter = !['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/admin'].some(path => location.pathname.startsWith(path));
 
   return (
     <div className="font-body text-charcoal bg-cream min-h-screen">
@@ -101,16 +106,25 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/password-reset/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-email/:id/:hash" element={<EmailVerificationHandler />} />
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
           <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
           <Route path="/products" element={<PageTransition><ProductsPage /></PageTransition>} />
-          <Route path="/product/:id" element={<PageTransition><ProductView /></PageTransition>} />
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
           <Route path="/reviews" element={<PageTransition><ReviewsPage /></PageTransition>} />
           <Route path="/aura-analysis" element={<PageTransition><SkinAura /></PageTransition>} />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<ProductManager />} />
+            <Route path="orders" element={<OrderManager />} />
+            <Route path="users" element={<UserManager />} />
+            <Route path="categories" element={<CategoryManager />} />
+            <Route path="reviews" element={<ReviewManager />} />
+          </Route>
         </Routes>
       </AnimatePresence>
       {showNavAndFooter && <Footer />}
