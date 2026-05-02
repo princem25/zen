@@ -205,9 +205,8 @@ export default function ProductsPage() {
                     )}
                 </AnimatePresence>
 
-                {/* Products Grid */}
                 <div className="px-4 md:px-10 max-w-7xl mx-auto">
-                    <Products />
+                    <Products category={activeCategory} />
                 </div>
 
                 {/* Bundle Section */}

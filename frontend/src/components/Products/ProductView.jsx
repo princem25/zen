@@ -4,20 +4,37 @@ import { motion } from 'framer-motion';
 import { FadeIn } from '../Animations';
 import { useAuth } from '../../context/AuthContext';
 import { getCloudinaryUrl } from '../../lib/cloudinary';
+import { db } from '../../lib/firebase';
+import { doc, getDoc, collection, getDocs, limit, query, where } from 'firebase/firestore';
 
 const productsData = [
-  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('v1777614636/product_glow_serum_1777524145107_icb4ur.jpg'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
-  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
-  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('v1777614637/product_clear_toner_1777524178937_kgqmao.jpg'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
-  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('v1777614636/product_night_repair_1777524200469_ehcvkx.jpg'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
+  { id: '1', name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: 'v1777614636/product_glow_serum_1777524145107_icb4ur.jpg', badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin. Infused with pure Bulgarian Rose extracts and high-potency Vitamin C to reveal your most radiant, petal-soft complexion.' },
+  { id: '2', name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: 'v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg', badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration. This lightweight yet intense cream creates a breathable veil of moisture that locks in hydration all day long.' },
+  { id: '3', name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: 'v1777614637/product_clear_toner_1777524178937_kgqmao.jpg', badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin. A soothing, alcohol-free formula that removes impurities while calming inflammation and refining skin texture.' },
+  { id: '4', name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: 'v1777614636/product_night_repair_1777524200469_ehcvkx.jpg', badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin. A potent nighttime treatment that accelerates cellular turnover and collagen production while you sleep.' }
 ];
 
 const ProductView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
+
+  const found = productsData.find(p => p.id === id);
+  if (!found) {
+    navigate('/products');
+    return null;
+  }
+
+  const product = {
+    ...found,
+    img: getCloudinaryUrl(found.img)
+  };
+
+  const suggested = productsData
+    .filter(p => p.id !== id && p.cat === found.cat)
+    .map(p => ({ ...p, img: getCloudinaryUrl(p.img) }))
+    .slice(0, 4);
 
   const handleAddToCart = () => {
     if (!user) {
@@ -26,17 +43,6 @@ const ProductView = () => {
     }
     alert(`Added ${qty} x ${product.name} to cart!`);
   };
-
-  useEffect(() => {
-    const found = productsData.find(p => p.id === parseInt(id));
-    if (found) {
-      setProduct(found);
-    } else {
-      navigate('/products');
-    }
-  }, [id, navigate]);
-
-  if (!product) return null;
 
   return (
     <div className="bg-cream min-h-screen pt-32 pb-20">
@@ -115,22 +121,24 @@ const ProductView = () => {
       </div>
 
       {/* Suggested Section */}
-      <section className="mt-32 border-t border-charcoal/5 pt-24">
-        <div className="max-w-7xl mx-auto px-4 md:px-10">
-          <h2 className="font-display text-3xl text-charcoal mb-12">Complete the <em className="italic text-blush-deep">Ritual</em></h2>
-          <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsData.filter(p => p.id !== product.id).slice(0, 4).map(p => (
-              <div key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="cursor-pointer group">
-                <div className="aspect-[4/5] rounded-3xl overflow-hidden mb-4 relative">
-                  <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700" />
+      {suggested.length > 0 && (
+        <section className="mt-32 border-t border-charcoal/5 pt-24">
+          <div className="max-w-7xl mx-auto px-4 md:px-10">
+            <h2 className="font-display text-3xl text-charcoal mb-12">Complete the <em className="italic text-blush-deep">Ritual</em></h2>
+            <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-6">
+              {suggested.map(p => (
+                <div key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="cursor-pointer group">
+                  <div className="aspect-[4/5] rounded-3xl overflow-hidden mb-4 relative">
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700" />
+                  </div>
+                  <h4 className="font-display text-lg text-charcoal group-hover:text-blush-deep transition-colors">{p.name}</h4>
+                  <p className="text-xs text-mid">{p.price}</p>
                 </div>
-                <h4 className="font-display text-lg text-charcoal group-hover:text-blush-deep transition-colors">{p.name}</h4>
-                <p className="text-xs text-mid">{p.price}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

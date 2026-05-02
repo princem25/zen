@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn, StaggerContainer } from './Animations';
 import { getCloudinaryUrl } from '../lib/cloudinary';
+import { db } from '../lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { seedProducts } from '../lib/seed';
 
 export const Features = () => (
   <section className="py-20 md:py-36 bg-warm-white overflow-hidden">
@@ -83,18 +86,38 @@ export const MemberBenefits = () => {
   );
 };
 
+
 const productsData = [
-  { id: 1, name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: getCloudinaryUrl('v1777614636/product_glow_serum_1777524145107_icb4ur.jpg'), badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin.' },
-  { id: 2, name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: getCloudinaryUrl('v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg'), badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration.' },
-  { id: 3, name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: getCloudinaryUrl('v1777614637/product_clear_toner_1777524178937_kgqmao.jpg'), badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin.' },
-  { id: 4, name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: getCloudinaryUrl('v1777614636/product_night_repair_1777524200469_ehcvkx.jpg'), badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin.' }
+  { id: '1', name: 'Petal Glow Serum', cat: 'Serum', price: '₹1,499', img: 'v1777614636/product_glow_serum_1777524145107_icb4ur.jpg', badge: 'Bestseller', desc: 'Rose hip & vitamin C brightening serum for luminous skin.' },
+  { id: '2', name: 'Dew Veil Moisturizer', cat: 'Moisturizer', price: '₹1,899', img: 'v1777614637/product_veil_moisturizer_1777524161649_ponzaw.jpg', badge: 'New', desc: 'Hyaluronic acid & ceramide blend for 48-hour deep hydration.' },
+  { id: '3', name: 'Calm & Clear Toner', cat: 'Toner', price: '₹999', img: 'v1777614637/product_clear_toner_1777524178937_kgqmao.jpg', badge: null, desc: 'Niacinamide & green tea essence to minimize pores, balance skin.' },
+  { id: '4', name: 'Velvet Night Repair', cat: 'Night Cream', price: '₹2,299', img: 'v1777614636/product_night_repair_1777524200469_ehcvkx.jpg', badge: null, desc: 'Retinol & bakuchiol restorative cream — wake up to softer skin.' }
 ];
 
-export const Products = () => {
+export const Products = ({ category = 'All', limitCount = null }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [quickView, setQuickView] = useState(null);
   const [qty, setQty] = useState(1);
+
+  // Filter and format products
+  const catMap = {
+    'Serums': 'Serum', 'Moisturizers': 'Moisturizer', 'Toners': 'Toner', 'Night Care': 'Night Cream', 'Sun Protection': 'Sun Protection'
+  };
+  const targetCat = catMap[category] || category;
+  
+  let products = productsData.map(p => ({
+    ...p,
+    img: getCloudinaryUrl(p.img)
+  }));
+
+  if (targetCat !== 'All') {
+    products = products.filter(p => p.cat === targetCat);
+  }
+
+  if (limitCount) {
+    products = products.slice(0, limitCount);
+  }
 
   const handleAddToCart = (product) => {
     if (!user) {
@@ -114,7 +137,7 @@ export const Products = () => {
         </div>
 
         <div className="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 px-2 md:px-0">
-          {productsData.map((p, i) => (
+          {products.map((p, i) => (
             <FadeIn key={p.id} delay={i * 0.1}>
               <div className="bg-warm-white rounded-[2rem] overflow-hidden border border-charcoal/5 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 group flex flex-col h-full relative">
                 

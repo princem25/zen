@@ -32,7 +32,7 @@ const Home = () => {
         <Marquee />
         <Features />
         <MemberBenefits />
-        <Products />
+        <Products limitCount={4} />
         
         {/* Personalized Skin Profile Prompt */}
         <section className="py-20 bg-warm-white">
@@ -83,7 +83,7 @@ function App() {
     }
   }, [user, isLoading, location.pathname, navigate]);
 
-  const showNavAndFooter = !['/login', '/register', '/forgot-password', '/password-reset', '/verify-email'].some(path => location.pathname.startsWith(path));
+  const showNavAndFooter = !['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => location.pathname.startsWith(path));
 
   return (
     <div className="font-body text-charcoal bg-cream min-h-screen">
@@ -97,7 +97,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/password-reset/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-email/:id/:hash" element={<EmailVerificationHandler />} />
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />

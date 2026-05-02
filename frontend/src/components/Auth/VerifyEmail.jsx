@@ -29,9 +29,9 @@ export default function VerifyEmail() {
                     </p>
                 </div>
 
-                {status === 'verification-link-sent' && (
+                {status && status !== 'error' && (
                     <div className="mb-6 p-4 bg-sage-deep/10 border border-sage-deep/20 text-sage-deep text-sm rounded-xl text-center">
-                        A new verification link has been sent to the email address you provided during registration.
+                        {status}
                     </div>
                 )}
 
