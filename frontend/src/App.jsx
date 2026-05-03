@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Features, Products, About, Marquee, Reviews, MemberBenefits } from './components/Sections';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Login from './components/Auth/Login';
@@ -112,6 +112,7 @@ function App() {
           <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
           <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
           <Route path="/products" element={<PageTransition><ProductsPage /></PageTransition>} />
+          <Route path="/product/:id" element={<PageTransition><ProductView /></PageTransition>} />
           <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
           <Route path="/reviews" element={<PageTransition><ReviewsPage /></PageTransition>} />
           <Route path="/aura-analysis" element={<PageTransition><SkinAura /></PageTransition>} />

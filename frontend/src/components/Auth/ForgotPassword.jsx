@@ -12,8 +12,11 @@ export default function ForgotPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        await forgotPassword({ email, setErrors, setStatus });
-        setIsSubmitting(false);
+        try {
+            await forgotPassword({ email, setErrors, setStatus });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (

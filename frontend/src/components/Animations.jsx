@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export const FadeIn = ({ children, delay = 0, direction = 'up', distance = 20, duration = 0.6 }) => {
+export const FadeIn = ({ children, delay = 0, direction = 'up', distance = 20, duration = 0.6, className = "" }) => {
   const directions = {
     up: { y: distance },
     down: { y: -distance },
@@ -11,6 +11,7 @@ export const FadeIn = ({ children, delay = 0, direction = 'up', distance = 20, d
 
   return (
     <motion.div
+      className={className}
       initial={{ 
         opacity: 0, 
         ...directions[direction] 

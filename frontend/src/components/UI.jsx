@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import AddressModal from './Checkout/AddressModal';
+import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { FadeIn } from './Animations';
 import { getCloudinaryUrl } from '../lib/cloudinary';
 
-export const CustomCursor = () => {
+export const CustomCursor = React.memo(() => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
 
@@ -49,42 +50,60 @@ export const CustomCursor = () => {
       />
     </div>
   );
-};
+});
 
-export const Preloader = () => {
+export const Preloader = React.memo(() => {
   const { isLoading } = useAuth();
   const [show, setShow] = useState(true);
+  const [isForcedHidden, setIsForcedHidden] = useState(false);
 
   useEffect(() => {
-    if (!isLoading) {
+    // Fail-safe: Force hide preloader after 2.5 seconds regardless of auth status
+    const failSafe = setTimeout(() => {
+      setIsForcedHidden(true);
+    }, 2500);
+
+    return () => clearTimeout(failSafe);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading || isForcedHidden) {
+      // Small delay for the fade-out transition to complete smoothly
       const timer = setTimeout(() => {
         setShow(false);
-      }, 500);
+      }, 400); 
       return () => clearTimeout(timer);
     }
-  }, [isLoading]);
+  }, [isLoading, isForcedHidden]);
 
   if (!show) return null;
 
+  const active = isLoading && !isForcedHidden;
+
   return (
-    <div className={`fixed inset-0 bg-warm-white flex items-center justify-center z-[99999] transition-all duration-700 ease-out ${!isLoading ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+    <div className={`fixed inset-0 bg-warm-white flex items-center justify-center z-[99999] transition-all duration-700 ease-in-out ${!active ? 'opacity-0 invisible scale-105' : 'opacity-100 visible scale-100'}`}>
       <div className="text-center">
-        <div className="font-display text-[clamp(2.5rem,6vw,4rem)] font-light tracking-[0.25em] text-charcoal animate-[preloaderPulse_1.6s_ease_infinite]">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="font-display text-[clamp(2.5rem,6vw,4rem)] font-light tracking-[0.25em] text-charcoal animate-[preloaderPulse_1.6s_ease_infinite]"
+        >
           ZENPHIRA
-        </div>
+        </motion.div>
         <div className="mx-auto mt-6 w-[120px] h-[2px] bg-beige rounded-sm overflow-hidden">
-          <span className="block h-full bg-gradient-to-r from-blush-deep to-sage-deep animate-[preloaderFill_2s_ease_forwards]"></span>
+          <span className="block h-full bg-gradient-to-r from-blush-deep to-sage-deep animate-[preloaderFill_1.8s_ease_forwards]"></span>
         </div>
       </div>
     </div>
   );
-};
+});
 
 export const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserAddress } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
@@ -110,24 +129,39 @@ export const Navbar = () => {
     <>
       <nav className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${scrolled ? 'glass-panel py-3' : 'py-5'}`}>
         <div className="max-w-7xl mx-auto px-4 md:px-10 flex items-center justify-between">
-          <Link to="/" className="group relative z-[1002] flex items-center">
-            <span className="font-display text-2xl md:text-3xl font-light tracking-wider flex items-center">
-              <span className="bg-gradient-to-r from-charcoal via-[#5a5a5a] to-charcoal bg-clip-text text-transparent">
-                Zenphira
+          <div className="flex flex-col">
+            <Link to="/" className="group relative z-[1002] flex items-center">
+              <span className="font-display text-2xl md:text-3xl font-light tracking-wider flex items-center">
+                <span className="bg-gradient-to-r from-charcoal via-[#5a5a5a] to-charcoal bg-clip-text text-transparent">
+                  Zenphira
+                </span>
+                <motion.span
+                  animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-1.5 h-1.5 bg-blush-deep rounded-full ml-2"
+                />
               </span>
-              <motion.span
-                animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-1.5 h-1.5 bg-blush-deep rounded-full ml-2"
-              />
-            </span>
-          </Link>
+            </Link>
+            
+            {/* Global Address Indicator */}
+            {user && (
+              <button 
+                onClick={() => setIsAddressModalOpen(true)}
+                className="flex items-center gap-1 md:gap-1.5 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-mid hover:text-blush-deep transition-all mt-0.5 ml-1"
+              >
+                <span className="text-xs">📍</span> 
+                <span className="truncate max-w-[80px] md:max-w-none">
+                  {user.address ? `Deliver to: ${user.address.city}` : 'Set Location'}
+                </span>
+              </button>
+            )}
+          </div>
 
           {/* Desktop Menu */}
           <ul className="hidden md:flex items-center gap-8">
             {[
-              user?.role === 'admin' && { name: 'Admin Panel', link: '/admin' },
-              user && { name: 'My Orders', link: '/dashboard' },
+              user?.role === 'admin' ? { name: 'Admin Panel', link: '/admin' } : null,
+              user && user.role !== 'admin' && { name: 'My Orders', link: '/dashboard' },
               { name: 'Home', link: '/' },
               { name: 'Skin Aura', link: '/aura-analysis' },
               { name: 'About', link: '/about' },
@@ -160,12 +194,9 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                {user.role === 'admin' && (
-                  <Link to="/admin" className="text-xs font-bold tracking-widest uppercase text-blush-deep bg-blush/10 px-6 py-2.5 rounded-full hover:bg-blush-deep hover:text-white transition-all border border-blush-deep/20">
-                    Admin Panel ⚙️
-                  </Link>
-                )}
-                <Link to="/profile" className="text-sm font-medium text-charcoal hover:text-blush-deep transition-colors">{user.name}</Link>
+                <Link to="/profile" className="text-sm font-medium text-charcoal hover:text-blush-deep transition-colors">
+                  {user.role === 'admin' ? 'Admin Profile' : user.name}
+                </Link>
                 <button onClick={logout} className="text-xs font-semibold tracking-widest uppercase text-charcoal border border-charcoal/20 px-6 py-2.5 rounded-full hover:bg-charcoal hover:text-white transition-all">
                   Logout
                 </button>
@@ -223,8 +254,8 @@ export const Navbar = () => {
           <nav className="flex-1">
             <ul className="flex flex-col gap-5">
               {[
-                user?.role === 'admin' && { name: 'Admin Panel', link: '/admin' },
-                user && { name: 'My Orders', link: '/dashboard' },
+                user?.role === 'admin' ? { name: 'Admin Panel', link: '/admin' } : null,
+                user && user.role !== 'admin' && { name: 'My Orders', link: '/dashboard' },
                 { name: 'Home', link: '/' },
                 { name: 'Skin Aura', link: '/aura-analysis' },
                 { name: 'About', link: '/about' },
@@ -291,6 +322,12 @@ export const Navbar = () => {
           </div>
         </div>
       </div>
+      <AddressModal 
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        onSave={async (data) => { await updateUserAddress(data); setIsAddressModalOpen(false); }}
+        initialData={user?.address || { name: user?.name || '' }}
+      />
     </>
   );
 };
@@ -368,7 +405,7 @@ export const Hero = () => {
   );
 };
 
-export const Footer = () => (
+export const Footer = React.memo(() => (
   <footer className="bg-charcoal text-white/75 pt-20 pb-8">
     <div className="max-w-7xl mx-auto px-4 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 mb-16">
       <div className="col-span-1 md:col-span-2">
@@ -401,4 +438,4 @@ export const Footer = () => (
       </div>
     </div>
   </footer>
-);
+));
