@@ -421,34 +421,37 @@ export const Reviews = () => {
   );
 };
 
-export const About = () => (
-  <section id="about" className="py-20 md:py-36 bg-warm-white">
-    <div className="max-w-7xl mx-auto px-4 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center">
-      <div className="relative">
-        <div className="relative h-[380px] md:h-[520px]">
-          <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80" alt="Lab formulation" className="w-full md:w-[80%] h-full object-cover rounded-2xl md:rounded-3xl shadow-2xl" />
-          <img src="https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=300&q=80" alt="Natural ingredients" className="absolute w-[44%] h-[200px] object-cover rounded-2xl bottom-8 right-0 shadow-xl border-4 border-warm-white floating-slow hidden md:block" />
+export const About = () => {
+  const navigate = useNavigate();
+  return (
+    <section id="about" className="py-20 md:py-36 bg-warm-white">
+      <div className="max-w-7xl mx-auto px-4 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center">
+        <div className="relative">
+          <div className="relative h-[380px] md:h-[520px]">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80" alt="Lab formulation" className="w-full md:w-[80%] h-full object-cover rounded-2xl md:rounded-3xl shadow-2xl" />
+            <img src="https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=300&q=80" alt="Natural ingredients" className="absolute w-[44%] h-[200px] object-cover rounded-2xl bottom-8 right-0 shadow-xl border-4 border-warm-white floating-slow hidden md:block" />
+          </div>
+          <div className="absolute bottom-4 right-4 md:top-8 md:right-12 md:bottom-auto bg-warm-white/90 backdrop-blur-md rounded-2xl p-4 md:p-5 text-center shadow-lg">
+            <strong className="block font-display text-2xl md:text-3xl font-semibold text-charcoal">12+</strong>
+            <span className="text-[10px] md:text-xs text-mid tracking-widest uppercase">Years of Research</span>
+          </div>
         </div>
-        <div className="absolute bottom-4 right-4 md:top-8 md:right-12 md:bottom-auto bg-warm-white/90 backdrop-blur-md rounded-2xl p-4 md:p-5 text-center shadow-lg">
-          <strong className="block font-display text-2xl md:text-3xl font-semibold text-charcoal">12+</strong>
-          <span className="text-[10px] md:text-xs text-mid tracking-widest uppercase">Years of Research</span>
+        <div>
+          <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-sage-deep bg-sage-deep/15 px-4 py-1.5 rounded-full mb-4">Our Philosophy</span>
+          <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-6">Beauty Born from<br /><em className="italic text-blush-deep">Science & Soul</em></h2>
+          <p className="text-mid mb-8 leading-relaxed text-sm md:text-base">Zenphira is where nature's wisdom meets dermatological precision. Every formula is a love letter to your skin, crafted with ethically sourced bioactive botanicals and clinically-validated actives.</p>
+          <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🌍 Sustainably Sourced</div>
+            <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🧪 Clinically Validated</div>
+          </div>
+          <button
+            onClick={() => navigate('/about')}
+            className="bg-gradient-to-br from-blush-deep to-[#d4788a] text-white px-10 py-4 rounded-full text-sm font-medium tracking-wide shadow-lg hover:-translate-y-1 transition-all"
+          >
+            Read Our Full Story
+          </button>
         </div>
       </div>
-      <div>
-        <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-sage-deep bg-sage-deep/15 px-4 py-1.5 rounded-full mb-4">Our Philosophy</span>
-        <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-6">Beauty Born from<br /><em className="italic text-blush-deep">Science & Soul</em></h2>
-        <p className="text-mid mb-8 leading-relaxed text-sm md:text-base">Zenphira is where nature's wisdom meets dermatological precision. Every formula is a love letter to your skin, crafted with ethically sourced bioactive botanicals and clinically-validated actives.</p>
-        <div className="flex flex-wrap gap-3 mb-10">
-          <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🌍 Sustainably Sourced</div>
-          <div className="flex items-center gap-2 bg-sage-deep/15 border border-sage-deep/40 rounded-full px-4 py-2 text-xs md:text-sm font-medium text-charcoal">🧪 Clinically Validated</div>
-        </div>
-        <button
-          onClick={() => navigate('/about')}
-          className="bg-gradient-to-br from-blush-deep to-[#d4788a] text-white px-10 py-4 rounded-full text-sm font-medium tracking-wide shadow-lg hover:-translate-y-1 transition-all"
-        >
-          Read Our Full Story
-        </button>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
