@@ -26,9 +26,11 @@
 @layer utilities {
   .floating {
     animation: float 6s ease-in-out infinite;
+    will-change: transform;
   }
   .floating-slow {
     animation: float 9s ease-in-out infinite reverse;
+    will-change: transform;
   }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
@@ -38,6 +40,7 @@
   .blob-shape {
     border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
     animation: blobMorph 10s ease-in-out infinite;
+    will-change: border-radius;
   }
   @keyframes blobMorph {
     0%, 100% { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; }
@@ -56,6 +59,7 @@
   /* Shared Button Styles from Zen-Master */
   .btn {
     @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-sm font-medium tracking-wide transition-all duration-400 relative overflow-hidden;
+    will-change: transform, box-shadow;
   }
 
   .btn-primary {
@@ -76,8 +80,14 @@
     to { width: 100%; }
   }
 
+  .marquee-content {
+    animation: marquee 28s linear infinite;
+    will-change: transform;
+  }
+
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
 }
+

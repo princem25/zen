@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -12,9 +12,25 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        await login({ email, password, setErrors });
-        setIsSubmitting(false);
+        try {
+            await login({ email, password, setErrors });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    // Fix for Firebase Popup Delay: Reset loading state if window regains focus 
+    // (which usually happens when the popup is closed)
+    useEffect(() => {
+        const handleFocus = () => {
+            if (isSubmitting) {
+                // Short delay to allow Firebase to process if it's actually succeeding
+                setTimeout(() => setIsSubmitting(false), 600);
+            }
+        };
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
+    }, [isSubmitting]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cream relative overflow-hidden px-4">
@@ -79,8 +95,11 @@ export default function Login() {
                 <button 
                     onClick={async () => {
                         setIsSubmitting(true);
-                        await loginWithGoogle();
-                        setIsSubmitting(false);
+                        try {
+                            await loginWithGoogle();
+                        } finally {
+                            setIsSubmitting(false);
+                        }
                     }}
                     disabled={isSubmitting}
                     className="w-full mt-8 flex items-center justify-center gap-3 bg-white border border-beige rounded-xl py-3 text-sm font-medium text-charcoal hover:bg-cream transition-all group disabled:opacity-50"

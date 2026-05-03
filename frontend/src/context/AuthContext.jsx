@@ -9,8 +9,6 @@ import {
     updateProfile,
     sendEmailVerification,
     signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
     confirmPasswordReset,
     verifyPasswordResetCode
 } from 'firebase/auth';
@@ -167,6 +165,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUserAddress = async (addressData) => {
+        if (!auth.currentUser) return;
+        try {
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            await setDoc(userRef, { address: addressData }, { merge: true });
+            setUser(prev => ({ ...prev, address: addressData }));
+        } catch (error) {
+            console.error("Error updating address:", error);
+        }
+    };
+
     const resendVerification = async ({ setStatus }) => {
         if (auth.currentUser) {
             try {
@@ -190,6 +199,7 @@ export const AuthProvider = ({ children }) => {
             forgotPassword,
             resetPassword,
             resendVerification,
+            updateUserAddress,
             verifyPasswordResetCode
         }}>
             {children}

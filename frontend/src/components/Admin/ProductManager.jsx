@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage } from '../../lib/firebase';
+import { db } from '../../lib/firebase';
+import { uploadToCloudinary, getCloudinaryUrl } from '../../lib/cloudinary';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ProductManager = () => {
@@ -25,6 +25,7 @@ const ProductManager = () => {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -33,7 +34,11 @@ const ProductManager = () => {
     const fetchProducts = async () => {
         try {
             const snap = await getDocs(collection(db, 'products'));
-            setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setProducts(snap.docs.map(doc => ({ 
+                id: doc.id, 
+                ...doc.data(),
+                img: getCloudinaryUrl(doc.data().img) 
+            })));
         } catch (error) {
             console.error("Error fetching products:", error);
         } finally {
@@ -44,6 +49,10 @@ const ProductManager = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Cleanup old preview URL to prevent memory leaks
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
         }
@@ -57,12 +66,10 @@ const ProductManager = () => {
 
             if (imageFile) {
                 try {
-                    const storageRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
-                    await uploadBytes(storageRef, imageFile);
-                    imageUrl = await getDownloadURL(storageRef);
+                    imageUrl = await uploadToCloudinary(imageFile);
                 } catch (err) {
-                    console.error("CORS/Upload Error:", err);
-                    throw new Error("Storage Upload Blocked by CORS. Please use the 'Image URL (Fallback)' box below instead.");
+                    console.error("Cloudinary Upload Error:", err);
+                    throw new Error(err.message || "Failed to upload to Cloudinary.");
                 }
             } else if (formData.img) {
                 imageUrl = formData.img;
@@ -108,12 +115,14 @@ const ProductManager = () => {
 
     const handleDelete = async (p) => {
         if (!window.confirm(`Are you sure you want to delete ${p.name}?`)) return;
+        setDeletingId(p.id);
         try {
             await deleteDoc(doc(db, 'products', p.id));
-            // Optional: delete image from storage if it's not a Cloudinary/external URL
             fetchProducts();
         } catch (error) {
             alert("Error deleting product: " + error.message);
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -184,9 +193,16 @@ const ProductManager = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => handleEdit(p)} className="p-2 hover:bg-blue-50 text-blue-500 rounded-lg transition-colors">✏️</button>
-                                            <button onClick={() => handleDelete(p)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors">🗑️</button>
+                                        <div className="flex items-center justify-end gap-2 transition-opacity">
+                                            {deletingId === p.id ? (
+                                                <div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            ) : (
+                                                <>
+                                                    <a href={`/product/${p.id}`} target="_blank" rel="noreferrer" title="View Product" className="p-2 hover:bg-cream text-charcoal rounded-lg transition-colors border border-transparent hover:border-beige">👁️</a>
+                                                    <button onClick={() => handleEdit(p)} title="Edit Product" className="p-2 hover:bg-cream text-charcoal rounded-lg transition-colors border border-transparent hover:border-beige">✏️</button>
+                                                    <button onClick={() => handleDelete(p)} title="Delete Product" className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors border border-transparent hover:border-red-100">🗑️</button>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -274,6 +290,8 @@ const ProductManager = () => {
                                             <div className="w-20 h-20 rounded-xl bg-white border-2 border-dashed border-beige overflow-hidden flex items-center justify-center group relative flex-shrink-0">
                                                 {imagePreview ? (
                                                     <img src={imagePreview} className="w-full h-full object-cover" />
+                                                ) : editingProduct?.img ? (
+                                                    <img src={editingProduct.img} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <span className="text-xl text-beige group-hover:scale-110 transition-transform">📸</span>
                                                 )}
@@ -319,20 +337,28 @@ const ProductManager = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex gap-4 pt-6">
+                                <div className="pt-6 flex flex-col sm:flex-row gap-4">
                                     <button 
                                         type="button" 
                                         onClick={() => setIsModalOpen(false)}
                                         className="flex-1 py-4 rounded-2xl border border-beige text-charcoal text-xs font-bold uppercase tracking-widest hover:bg-cream transition-all"
+                                        disabled={submitting}
                                     >
                                         Cancel
                                     </button>
                                     <button 
-                                        type="submit" 
+                                        type="submit"
                                         disabled={submitting}
-                                        className="flex-1 py-4 rounded-2xl bg-charcoal text-white text-xs font-bold uppercase tracking-widest hover:bg-blush-deep shadow-lg disabled:opacity-50 transition-all"
+                                        className="flex-[2] py-4 rounded-2xl bg-charcoal text-white text-xs font-bold uppercase tracking-widest hover:bg-blush-deep shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                                     >
-                                        {submitting ? 'Saving...' : 'Save Product'}
+                                        {submitting ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                Processing...
+                                            </>
+                                        ) : (
+                                            editingProduct ? 'Update Product' : 'Create Product'
+                                        )}
                                     </button>
                                 </div>
                             </form>

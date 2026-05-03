@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Products } from '../Sections';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn, StaggerContainer } from '../Animations';
+import { BUSINESS_PHONE } from '../../lib/whatsapp';
 
 export default function ProductsPage() {
     const [activeCategory, setActiveCategory] = useState('All');
@@ -236,7 +237,7 @@ export default function ProductsPage() {
                                     <motion.button 
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => window.open(`https://wa.me/9714203627?text=hii`, '_blank')}
+                                        onClick={() => window.open(`https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent("I'm interested in the Essential Glow Trio Bundle! (₹3,499)")}`, '_blank')}
                                         className="w-fit bg-white text-charcoal px-8 py-4 rounded-full text-sm font-semibold hover:bg-blush hover:text-white transition-all shadow-2xl whitespace-nowrap"
                                     >
                                         Shop the Set
